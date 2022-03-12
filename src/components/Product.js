@@ -7,6 +7,7 @@ import { addToBasket } from "../slices/basketSlice";
 
 const MAX_RATING = 5;
 const MIN_RATING = 1;
+const MAX_COUNT = 1;
 
 function Product({ id, title, price, description, category, image }) {
   const dispatch = useDispatch();
@@ -20,7 +21,17 @@ function Product({ id, title, price, description, category, image }) {
   const addItemToBasket = () => {
     //trigger to add item to global store we need to dispatch the actions
 
-    const product = { id, title, price, description, category, image, hasPrime, rating };
+    const product = {
+      id,
+      title,
+      price,
+      description,
+      category,
+      image,
+      hasPrime,
+      rating,
+      count: MAX_COUNT,
+    };
     dispatch(addToBasket(product));
   };
 

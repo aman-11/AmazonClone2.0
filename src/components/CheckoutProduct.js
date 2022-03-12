@@ -2,7 +2,7 @@ import { StarIcon } from "@heroicons/react/solid";
 import Image from "next/image";
 import Currency from "react-currency-formatter";
 import { useDispatch } from "react-redux";
-import { addToBasket, removeFromBasket } from "../slices/basketSlice";
+import { addToBasket, decItemQuanitybyOne, removeFromBasket } from "../slices/basketSlice";
 
 function CheckoutProduct({
   id,
@@ -13,6 +13,7 @@ function CheckoutProduct({
   description,
   category,
   image,
+  count,
 }) {
   const dispatch = useDispatch();
 
@@ -37,6 +38,17 @@ function CheckoutProduct({
     dispatch(removeFromBasket({ id }));
   };
 
+  const decItemQuanity = () => {
+    //check for count if !1 remove item
+    if (count == 1) {
+      removeItemToBasket();
+      return true;
+    }
+
+    //decrement the count by one if count>1
+    dispatch(decItemQuanitybyOne({ id }));
+  };
+
   return (
     <div className="grid grid-cols-5">
       <Image src={image} height={200} width={200} objectFit="contain" />
@@ -55,7 +67,16 @@ function CheckoutProduct({
 
         <p className="text-xs my-2 line-clamp-3">{description}</p>
 
-        <Currency quantity={price} currency="USD" />
+        <div className="whitespace-nowrap text-sm">
+          {count > 1 && (
+            <span>
+              {count} x <Currency quantity={price} currency="USD" /> ={" "}
+            </span>
+          )}
+          <span className="font-semibold">
+            <Currency quantity={price * count} currency="USD" />
+          </span>
+        </div>
 
         {hasPrime && (
           <div className="flex items-center space-x-2">
@@ -71,9 +92,26 @@ function CheckoutProduct({
 
       {/*right section -> add, remove btn*/}
       <div className="flex flex-col space-y-2 my-auto justify-self-end">
-        <button onClick={addItemToBasket} className="button">
+        {/*<button onClick={addItemToBasket} className="button">
           Add to Basket
-        </button>
+        </button>*/}
+        <div className="flex items-center flex-grow">
+          <button
+            onClick={decItemQuanity}
+            className="buttonIncDec w-1/5 sm:w-3/10"
+          >
+            -
+          </button>
+          <span className="text-sm font-semibold grid justify-items-center ml-1 mr-1 w-3/5 sm:w-3/10">
+            Quantity: {count}
+          </span>
+          <button
+            onClick={addItemToBasket}
+            className="buttonIncDec w-1/5 sm:w-3/10"
+          >
+            +
+          </button>
+        </div>
         <button onClick={removeItemToBasket} className="button">
           Remove from Basket
         </button>

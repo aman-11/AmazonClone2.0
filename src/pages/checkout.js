@@ -2,13 +2,14 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import CheckoutProduct from "../components/CheckoutProduct";
 import Header from "../components/Header";
-import { selectItems, selectTotal } from "../slices/basketSlice";
+import { selectItems, selectTotal, selectTotalItems } from "../slices/basketSlice";
 import Currency from "react-currency-formatter";
 import { useSession, signIn } from "next-auth/react";
 
 function Checkout() {
   const items = useSelector(selectItems);
   const total = useSelector(selectTotal);
+  const totalItems = useSelector(selectTotalItems);
   const { data: session, status } = useSession();
 
   return (
@@ -42,6 +43,7 @@ function Checkout() {
                 category={item.category}
                 image={item.image}
                 hasPrime={item.hasPrime}
+                count={item.count}
               />
             ))}
           </div>
@@ -53,7 +55,7 @@ function Checkout() {
             {items.length > 0 && (
               <>
                 <h2 className="whitespace-nowrap">
-                  SubTotal ({items.length} items):{" "}
+                  SubTotal ({totalItems} items):{" "}
                   <span className="font-bold">
                     <Currency quantity={total} currency="USD" />
                   </span>
