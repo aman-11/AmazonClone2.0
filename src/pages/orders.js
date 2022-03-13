@@ -6,7 +6,7 @@ import Order from "../components/Order";
 
 function orders({ orders }) {
   const { data: session } = useSession();
-  console.log("orders", orders);
+  console.log("dup iterm orders", orders[1].items);
 
   return (
     <div>
