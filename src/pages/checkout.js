@@ -2,15 +2,48 @@ import Image from "next/image";
 import { useSelector } from "react-redux";
 import CheckoutProduct from "../components/CheckoutProduct";
 import Header from "../components/Header";
-import { selectItems, selectTotal, selectTotalItems } from "../slices/basketSlice";
+import {
+  selectItems,
+  selectTotal,
+  selectTotalItems,
+} from "../slices/basketSlice";
 import Currency from "react-currency-formatter";
 import { useSession, signIn } from "next-auth/react";
+import { loadStripe } from "@stripe/stripe-js";
+import axios from "axios";
+
+const stripePromise = loadStripe(process.env.stripe_public_key); //require the public key
 
 function Checkout() {
   const items = useSelector(selectItems);
   const total = useSelector(selectTotal);
   const totalItems = useSelector(selectTotalItems);
   const { data: session, status } = useSession();
+
+  const createCheckoutSession = async () => {
+    //send basket items to stripe session
+    //then create session for stripe
+
+    //get instance
+    const stripe = await stripePromise;
+
+    //call the backend to create checkout session
+    //use axios lib to send user to endpoints means making request
+    //API -> POST, GET
+    const checkoutSession = await axios.post("/api/create-checkout-session", {
+      items: items,
+      email: session.user.email,
+      totalItems: totalItems,
+    });
+
+    //redirect the user to stripe checkout page with ID we got after hitting the endpoint checkoutSession(res)
+    const result = await stripe.redirectToCheckout({
+      sessionId: checkoutSession.data.id,
+    });
+
+    //if result has error
+    if (result.error) alert(result.error.message);
+  };
 
   return (
     <div className="bg-gray-100">
@@ -62,6 +95,8 @@ function Checkout() {
                 </h2>
 
                 <button
+                  role="link"
+                  onClick={createCheckoutSession}
                   disabled={!session}
                   className={`button mt-2 ${
                     !session &&
